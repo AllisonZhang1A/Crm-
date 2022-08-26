@@ -213,7 +213,6 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 			var cost=$.trim($("#edit-cost").val());
 			var description=$.trim($("#edit-description").val());
 			//表单验证(作业)
-
 			//发送请求
 			$.ajax({
 				url:'workbench/activity/saveEditActivity.do',
@@ -243,6 +242,7 @@ String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.ge
 				}
 			});
 		});
+
 
 		//给"批量导出"按钮添加单击事件
 		$("#exportActivityAllBtn").click(function () {
