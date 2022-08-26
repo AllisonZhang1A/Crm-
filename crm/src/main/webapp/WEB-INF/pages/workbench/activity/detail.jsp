@@ -36,20 +36,103 @@
                 cancelAndSaveBtnDefault = true;
             });
 
-            $(".remarkDiv").mouseover(function(){
+            /*$(".remarkDiv").mouseover(function(){
+                $(this).children("div").children("div").show();
+            });*/
+            $("#remarkDivList").on("mouseover",".remarkDiv",function () {
                 $(this).children("div").children("div").show();
             });
 
-            $(".remarkDiv").mouseout(function(){
+
+            /*$(".remarkDiv").mouseout(function(){
+                $(this).children("div").children("div").hide();
+            });*/
+            $("#remarkDivList").on("mouseout",".remarkDiv",function () {
                 $(this).children("div").children("div").hide();
             });
 
-            $(".myHref").mouseover(function(){
+            /*$(".myHref").mouseover(function(){
+                $(this).children("span").css("color","red");
+            });*/
+            $("#remarkDivList").on("mouseover",".myHref",function () {
                 $(this).children("span").css("color","red");
             });
 
-            $(".myHref").mouseout(function(){
+            /*$(".myHref").mouseout(function(){
                 $(this).children("span").css("color","#E6E6E6");
+            });*/
+            $("#remarkDivList").on("mouseout",".myHref",function () {
+                $(this).children("span").css("color","#E6E6E6");
+            });
+
+            //给"保存"按钮添加单击事件
+            $("#saveCreateActivityRemarkBtn").click(function () {
+                //收集参数
+                var noteContent=$.trim($("#remark").val());
+                var activityId='${activity.id}';
+                //表单验证
+                if(noteContent==""){
+                    alert("备注内容不能为空");
+                    return;
+                }
+                //发送请求
+                $.ajax({
+                    url:'workbench/activity/saveCreateActivityRemark.do',
+                    data:{
+                        noteContent:noteContent,
+                        activityId:activityId
+                    },
+                    type:'post',
+                    dateType:'json',
+                    success:function (data) {
+                        if(data.code=="1"){
+                            //清空输入框
+                            $("#remark").val("");
+                            //刷新备注列表
+                            var htmlStr="";
+                            htmlStr+="<div id=\"div_"+data.retData.id+"\" class=\"remarkDiv\" style=\"height: 60px;\">";
+                            htmlStr+="<img title=\"${sessionScope.sessionUser.name}\" src=\"image/user-thumbnail.png\" style=\"width: 30px; height:30px;\">";
+                            htmlStr+="<div style=\"position: relative; top: -40px; left: 40px;\" >";
+                            htmlStr+="<h5>"+data.retData.noteContent+"</h5>";
+                            htmlStr+="<font color=\"gray\">市场活动</font> <font color=\"gray\">-</font> <b>${activity.name}</b> <small style=\"color: gray;\"> "+data.retData.createTime+" 由${sessionScope.sessionUser.name}创建</small>";
+                            htmlStr+="<div style=\"position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;\">";
+                            htmlStr+="<a class=\"myHref\" name=\"editA\" remarkId=\""+data.retData.id+"\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>";
+                            htmlStr+="&nbsp;&nbsp;&nbsp;&nbsp;";
+                            htmlStr+="<a class=\"myHref\" name=\"deleteA\" remarkId=\""+data.retData.id+"\" href=\"javascript:void(0);\"><span class=\"glyphicon glyphicon-remove\" style=\"font-size: 20px; color: #E6E6E6;\"></span></a>";
+                            htmlStr+="</div>";
+                            htmlStr+="</div>";
+                            htmlStr+="</div>";
+                            $("#remarkDiv").before(htmlStr);
+                        }else{
+                            //提示信息
+                            alert(data.message);
+                        }
+                    }
+                });
+            });
+
+            //给所有的"删除"图标添加单击事件
+            $("#remarkDivList").on("click","a[name='deleteA']",function () {
+                //收集参数
+                var id=$(this).attr("remarkId");
+                //发送请求
+                $.ajax({
+                    url:'workbench/activity/deleteActivityRemarkById.do',
+                    data:{
+                        id:id
+                    },
+                    type:'post',
+                    dataType:'json',
+                    success:function (data) {
+                        if(data.code=="1"){
+                            //刷新备注列表
+                            $("#div_"+id).remove();
+                        }else{
+                            //提示信息
+                            alert(data.message);
+                        }
+                    }
+                });
             });
         });
 
@@ -153,22 +236,22 @@
 </div>
 
 <!-- 备注 -->
-<div style="position: relative; top: 30px; left: 40px;">
+<div id="remarkDivList" style="position: relative; top: 30px; left: 40px;">
     <div class="page-header">
         <h4>备注</h4>
     </div>
 
     <!--遍历remarkList，显示所有的备注-->
     <c:forEach items="${remarkList}" var="remark">
-        <div class="remarkDiv" style="height: 60px;">
+        <div id="div_${remark.id}" class="remarkDiv" style="height: 60px;">
             <img title="${remark.createBy}" src="image/user-thumbnail.png" style="width: 30px; height:30px;">
             <div style="position: relative; top: -40px; left: 40px;" >
                 <h5>${remark.noteContent}</h5>
-                <font color="gray">市场活动</font> <font color="gray">-</font> <b>${activity.name}</b> <small style="color: gray;"> ${remark.editFlag=='1'?remark.editTime:remark.createTime} 由${remark.editFlag=='1'?remark.editBy:remark.createBy}${remark.editFlag=='1'?'创建':'修改'}</small>
+                <font color="gray">市场活动</font> <font color="gray">-</font> <b>${activity.name}</b> <small style="color: gray;"> ${remark.editFlag=='1'?remark.editTime:remark.createTime} 由${remark.editFlag=='1'?remark.editBy:remark.createBy}${remark.editFlag=='1'?'修改':'创建'}</small>
                 <div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">
-                    <a class="myHref" remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>
+                    <a class="myHref" name="editA" remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #E6E6E6;"></span></a>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="myHref" remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>
+                    <a class="myHref" name="deleteA" remarkId="${remark.id}" href="javascript:void(0);"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #E6E6E6;"></span></a>
                 </div>
             </div>
         </div>
@@ -206,7 +289,7 @@
             <textarea id="remark" class="form-control" style="width: 850px; resize : none;" rows="2"  placeholder="添加备注..."></textarea>
             <p id="cancelAndSaveBtn" style="position: relative;left: 737px; top: 10px; display: none;">
                 <button id="cancelBtn" type="button" class="btn btn-default">取消</button>
-                <button type="button" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-primary" id="saveCreateActivityRemarkBtn">保存</button>
             </p>
         </form>
     </div>
