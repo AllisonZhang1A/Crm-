@@ -1,0 +1,17 @@
+-- auto-generated definition
+create table tbl_activity
+(
+    id          char(32)     not null comment '主键采用uuid自动生成策略，要求32位长度，全部小写'
+        primary key,
+    owner       varchar(255) not null comment '市场活动所有者可以是当前登录的用户，不过当前登录的用户也可以指派其它用户为该市场活动的所有者',
+    name        varchar(255) not null,
+    start_date  char(10)     null comment '日期格式：2010-10-09',
+    end_date    char(10)     null comment '日期格式：2010-10-09',
+    cost        bigint       null,
+    description varchar(255) null comment '对当前市场活动的描述',
+    create_by   varchar(255) null comment '保存市场活动的时候，将当前登录的用户作为市场活动创建者',
+    create_time char(19)     null comment '19个长度，精确到时分秒，例如：2010-10-10 10:10:10',
+    edit_by     varchar(255) null comment '修改市场活动的时候，将当前登录的用户作为该市场活动的修改者',
+    edit_time   char(19)     null comment '19个长度，精确到时分秒，例如：2010-10-10 10:10:10'
+)
+    comment '市场活动表';
